@@ -1,15 +1,22 @@
 from copy import copy, deepcopy
-from matlab.engine import start_matlab
-from numpy import arange, dot, linalg, zeros
-from pandas import DataFrame
 from pathlib import Path
 from pickle import dump
 from os import makedirs, remove, path
 from shutil import copyfile
-from sympy import Abs, Piecewise, solve, symbols, sympify
 from time import ctime
 
-from baseline import blocks
+from matlab.engine import start_matlab
+from numpy import arange, dot, linalg, zeros
+from pandas import DataFrame
+from sympy import Abs, Piecewise, solve, symbols, sympify
+
+from baseline import ( absolute_ground,
+                       add_TNT,
+                       blocks,
+                       level_width_min,
+                       pig_size,
+                       remove_unnecessary_pigs,
+                       write_level_xml )
 
 # step
 gap = 0.45
@@ -169,13 +176,10 @@ def construct(nodes, folder):
                 complete_locations.append(
                     [int(node.block), round(level_width_min+node.position+round(blocks[node.block][0]/2.0, 3), 3), round(absolute_ground+node.point+round(blocks[node.block][1]/2.0, 3), 3)])
             node = node.parent
-        complete_locations, final_pig_positions = find_pig_position(
-            list(reversed(complete_locations)))
-        final_pig_positions, removed_pigs = remove_unnecessary_pigs(
-            number_pigs, final_pig_positions)
+        complete_locations, final_pig_positions = find_pig_position(list(reversed(complete_locations)))
+        final_pig_positions, removed_pigs = remove_unnecessary_pigs(number_pigs, final_pig_positions)
         final_TNT_positions = add_TNT(removed_pigs)
-        write_level_xml(folder, complete_locations,
-                        [], final_pig_positions, final_TNT_positions, [], 5, i, [])
+        write_level_xml(folder, complete_locations, [], final_pig_positions, final_TNT_positions, [], 5, i, [])
         i = i+1
         structures.append(complete_locations.reverse())
         print('\n')
@@ -408,48 +412,42 @@ def find_pig_position(complete_locations):
 
         # dont place block on edge if block too thin
         if blocks[str(block[0])][0] < pig_width:
-            test_positions = [[round(block[1], 10), round(
-                block[2] + (pig_height/2) + (block_height/2), 10)]]
+            test_positions = [[round(block[1], 10), round(block[2] + (pig_height/2) + (block_height/2), 10)]]
         else:
-            test_positions = [[round(block[1], 10), round(block[2] + (pig_height/2) + (block_height/2), 10)],
-                              [round(block[1] + (block_width/3), 10),
-                               round(block[2] + (pig_height/2) + (block_height/2), 10)],
-                              [round(block[1] - (block_width/3), 10), round(block[2] + (pig_height/2) + (block_height/2), 10)]]  # check above centre of block
+            test_positions = [ [round(block[1], 10), round(block[2] + (pig_height/2) + (block_height/2), 10)],
+                               [round(block[1] + (block_width/3), 10), round(block[2] + (pig_height/2) + (block_height/2), 10)],
+                               [round(block[1] - (block_width/3), 10), round(block[2] + (pig_height/2) + (block_height/2), 10)] ]  # check above centre of block
         for test_position in test_positions:
             valid_pig = True
             for i in complete_locations:
-                if (round((test_position[0] - pig_width/2), 10) < round((i[1] + (blocks[str(i[0])][0])/2), 10) and
-                        round((test_position[0] + pig_width/2), 10) > round((i[1] - (blocks[str(i[0])][0])/2), 10) and
-                        round((test_position[1] + pig_height/2), 10) > round((i[2] - (blocks[str(i[0])][1])/2), 10) and
-                        round((test_position[1] - pig_height/2), 10) < round((i[2] + (blocks[str(i[0])][1])/2), 10)):
+                if ( round((test_position[0] - pig_width/2), 10) < round((i[1] + (blocks[str(i[0])][0])/2), 10) and
+                     round((test_position[0] + pig_width/2), 10) > round((i[1] - (blocks[str(i[0])][0])/2), 10) and
+                     round((test_position[1] + pig_height/2), 10) > round((i[2] - (blocks[str(i[0])][1])/2), 10) and
+                     round((test_position[1] - pig_height/2), 10) < round((i[2] + (blocks[str(i[0])][1])/2), 10) ):
                     valid_pig = False
             if valid_pig == True:
                 possible_pig_positions.append(test_position)
 
     # identify all possible pig positions on ground within structure
     print('\ncomplete_locations\n', complete_locations)
-    left_bottom = [complete_locations[0][0],
-                   complete_locations[0][1]]  # total_tree[-1][0]
-    print('right_bottom', list(
-        filter(lambda x: x[2] == complete_locations[0][2], complete_locations)))
-    right_bottom_block = sorted(list(filter(
-        lambda x: x[2] == complete_locations[0][2], complete_locations)), key=lambda y: y[1])[-1]
+    left_bottom = [complete_locations[0][0], complete_locations[0][1]]
+    print('right_bottom', list(filter(lambda x: x[2] == complete_locations[0][2], complete_locations)))
+    right_bottom_block = sorted(list(filter(lambda x: x[2] == complete_locations[0][2], complete_locations)), key=lambda y: y[1])[-1]
     right_bottom = [right_bottom_block[0], right_bottom_block[1]]
     test_positions = []
     x_pos = left_bottom[1]
 
     while x_pos < right_bottom[1]:
-        test_positions.append([round(x_pos, 10), round(
-            absolute_ground + (pig_height/2), 10)])
+        test_positions.append([round(x_pos, 10), round(absolute_ground + (pig_height/2), 10)])
         x_pos = x_pos + pig_precision
 
     for test_position in test_positions:
         valid_pig = True
         for i in complete_locations:
-            if (round((test_position[0] - pig_width/2), 10) < round((i[1] + (blocks[str(i[0])][0])/2), 10) and
-                    round((test_position[0] + pig_width/2), 10) > round((i[1] - (blocks[str(i[0])][0])/2), 10) and
-                    round((test_position[1] + pig_height/2), 10) > round((i[2] - (blocks[str(i[0])][1])/2), 10) and
-                    round((test_position[1] - pig_height/2), 10) < round((i[2] + (blocks[str(i[0])][1])/2), 10)):
+            if ( round((test_position[0] - pig_width/2), 10) < round((i[1] + (blocks[str(i[0])][0])/2), 10) and
+                 round((test_position[0] + pig_width/2), 10) > round((i[1] - (blocks[str(i[0])][0])/2), 10) and
+                 round((test_position[1] + pig_height/2), 10) > round((i[2] - (blocks[str(i[0])][1])/2), 10) and
+                 round((test_position[1] - pig_height/2), 10) < round((i[2] + (blocks[str(i[0])][1])/2), 10) ):
                 valid_pig = False
         if valid_pig == True:
             possible_pig_positions.append(test_position)
@@ -458,15 +456,14 @@ def find_pig_position(complete_locations):
     # until no more valid positions
     final_pig_positions = []
     while len(possible_pig_positions) > 0:
-        pig_choice = possible_pig_positions.pop(
-            randint(1, len(possible_pig_positions))-1)
+        pig_choice = possible_pig_positions.pop(randint(1, len(possible_pig_positions))-1)
         final_pig_positions.append(pig_choice)
         new_pig_positions = []
         for i in possible_pig_positions:
-            if (round((pig_choice[0] - pig_width/2), 10) >= round((i[0] + pig_width/2), 10) or
-                    round((pig_choice[0] + pig_width/2), 10) <= round((i[0] - pig_width/2), 10) or
-                    round((pig_choice[1] + pig_height/2), 10) <= round((i[1] - pig_height/2), 10) or
-                    round((pig_choice[1] - pig_height/2), 10) >= round((i[1] + pig_height/2), 10)):
+            if ( round((pig_choice[0] - pig_width/2), 10) >= round((i[0] + pig_width/2), 10) or
+                 round((pig_choice[0] + pig_width/2), 10) <= round((i[0] - pig_width/2), 10) or
+                 round((pig_choice[1] + pig_height/2), 10) <= round((i[1] - pig_height/2), 10) or
+                 round((pig_choice[1] - pig_height/2), 10) >= round((i[1] + pig_height/2), 10) ):
                 new_pig_positions.append(i)
         possible_pig_positions = new_pig_positions
 
@@ -523,7 +520,7 @@ def height_limit(position, point):  # limit problems
 
 
 if __name__ == '__main__':
-    px, py, m_height, middle = read_limit("limit_parameter2.txt")
+    px, py, m_height, middle = read_limit("limit_parameter.txt")
     print(px)
     print(py)
     print(ctime())

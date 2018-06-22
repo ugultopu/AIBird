@@ -1,0 +1,1 @@
+No function from 'baseline' is being used in 'enumerate-structures' until the 'construct' function in 'enumerate-structures'. Only the 'blocks' variable from 'baseline' is being used in 'enumerate-structures' before the 'construct' function in 'enumerate-structures'.

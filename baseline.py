@@ -29,12 +29,10 @@ block_names = {'1': "SquareHole", '2': "RectFat", '3': "RectFat", '4': "SquareSm
                '12': "RectBig", '13': "RectBig"}
 
 # additional objects number and name
-additional_objects = {'1': "TriangleHole",
-                      '2': "Triangle", '3': "Circle", '4': "CircleSmall"}
+additional_objects = {'1': "TriangleHole", '2': "Triangle", '3': "Circle", '4': "CircleSmall"}
 
 # additional objects number and size
-additional_object_sizes = {'1': [0.82, 0.82], '2': [
-    0.82, 0.82], '3': [0.8, 0.8], '4': [0.45, 0.45]}
+additional_object_sizes = {'1': [0.82, 0.82], '2': [0.82, 0.82], '3': [0.8, 0.8], '4': [0.45, 0.45]}
 
 # blocks number and probability of being selected
 probability_table_blocks = {'1': 0.08, '2': 0.08, '3': 0.08, '4': 0.08,
@@ -46,8 +44,7 @@ probability_table_blocks = {'1': 0.08, '2': 0.08, '3': 0.08, '4': 0.08,
 materials = ["wood", "stone", "ice"]
 
 # bird types number and name
-bird_names = {'1': "BirdRed", '2': "BirdBlue",
-              '3': "BirdYellow", '4': "BirdBlack", '5': "BirdWhite"}
+bird_names = {'1': "BirdRed", '2': "BirdBlue", '3': "BirdYellow", '4': "BirdBlack", '5': "BirdWhite"}
 
 # bird types number and probability of being selected
 bird_probabilities = {'1': 0.35, '2': 0.2, '3': 0.2, '4': 0.15, '5': 0.1}
@@ -58,42 +55,29 @@ pig_size = [0.5, 0.5]    # size of pigs
 
 platform_size = [0.62, 0.62]     # size of platform sections
 
-# buffer uesd to push edge blocks further into the structure center
-# (increases stability)
-edge_buffer = 0
+edge_buffer = 0         # buffer uesd to push edge blocks further into the structure center (increases stability)
 
 absolute_ground = -3.5          # the position of ground within level
 
-# maximum number of peaks a structure can have (up to 5)
-max_peaks = 5
+max_peaks = 5           # maximum number of peaks a structure can have (up to 5)
 min_peak_split = 10     # minimum distance between two peak blocks of structure
 max_peak_split = 50     # maximum distance between two peak blocks of structure
 
 minimum_height_gap = 3.5        # y distance min between platforms
-# x_distance min between platforms / y_distance min between platforms and
-# ground structures
-platform_distance_buffer = 0.4
+platform_distance_buffer = 0.4  # x_distance min between platforms / y_distance min between platforms and ground structures
 
-# defines the levels area (ie. space within which structures/platforms can
-# be placed)
+# defines the levels area (ie. space within which structures/platforms can be placed)
 level_width_min = -3.0
 level_width_max = 9.0
-# only used by platforms, ground structures use absolute_ground to
-# determine their lowest point
-level_height_min = -2.0
+level_height_min = -2.0         # only used by platforms, ground structures use absolute_ground to determine their lowest point
 level_height_max = 15.0
 
-# how precise to check for possible pig positions on ground
-pig_precision = 0.01
+pig_precision = 0.01                # how precise to check for possible pig positions on ground
 
-# minimum amount of space allocated to ground structure
-min_ground_width = 2.5
-# desired height limit of ground structures
-ground_structure_height_limit = (
-    (level_height_max - minimum_height_gap) - absolute_ground)/1.5
+min_ground_width = 2.5                      # minimum amount of space allocated to ground structure
+ground_structure_height_limit = ((level_height_max - minimum_height_gap) - absolute_ground)/1.5    # desired height limit of ground structures
 
-# number of times to attempt to place a platform before abandoning it
-max_attempts = 100
+max_attempts = 100                          # number of times to attempt to place a platform before abandoning it
 
 # step
 gap = 0.45

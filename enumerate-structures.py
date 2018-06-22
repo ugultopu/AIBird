@@ -42,8 +42,8 @@ class Node(object):
         self.is_start = 0  # test if the node is the structure's head
         self.is_head = 0  # test if the node is the row's head
 
-    def print(self):
-        print(*self.__dict__.items(), sep=' ')
+    def __str__(self):
+        return ' '.join([str(item) for item in self.__dict__.items()])
 
 
 def generate(structure_height):
@@ -72,7 +72,7 @@ def generate(structure_height):
                 print("\nstructure\n")
                 structures.append(leaf)
                 continue
-            leaf.print()
+            print(leaf)
             parents = []
             temp_parents = []
             x1, x2 = limit_boundary(
@@ -123,7 +123,7 @@ def generate(structure_height):
                                 temp_leaf.append(child)
                             temp_parents.append(child)
                             empty = False
-                            child.print()
+                            print(child)
                     # if no child is suitable
                     if empty:
                         child = Node(parent_node)
@@ -143,7 +143,7 @@ def generate(structure_height):
                         if round(position, 2)+gap >= round(x2, 2):
                             child.is_head = 1
                             temp_leaf.append(child)
-                        child.print()
+                        print(child)
                         temp_parents.append(child)
 
                 parents.clear()

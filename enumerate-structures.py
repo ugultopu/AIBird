@@ -15,6 +15,7 @@ from baseline import ( absolute_ground,
                        add_TNT,
                        blocks,
                        level_width_min,
+                       pig_precision,
                        pig_size,
                        remove_unnecessary_pigs,
                        write_level_xml )

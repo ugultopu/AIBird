@@ -41,11 +41,6 @@ probability_table_blocks = {'1': 0.08, '2': 0.08, '3': 0.08, '4': 0.08,
                             '5': 0.08, '6': 0.08, '7': 0.08, '8': 0.08,
                             '9': 0.08, '10': 0.08, '11': 0.08,
                             '12': 0.08, '13': 0.04}
-# probability_table_blocks = {'1':0, '2':0, '3':0, '4':0,
-#                             '5':0, '6':0.25, '7':0, '8':0.25,
-#                             '9':0, '10':0.25, '11':0,
-#                             '12':0.25, '13':0}
-
 
 # materials that are available
 materials = ["wood", "stone", "ice"]
@@ -110,8 +105,6 @@ y = symbols("y")
 
 
 class Node(object):
-    """docstring for Node"""
-
     def __init__(self, arg=None):
         super(Node, self).__init__()
         self.g = 0
@@ -297,24 +290,20 @@ def generate(structure_height):
     height = 0
     signal = True
     while signal:
-
         leaf_node = copy.copy(temp_leaf)
         temp_leaf.clear()
-
         print("\n\nstep:", step, "\n\n")
         for leaf in leaf_node:
             # return structure when cannot add more blocks
             print('\n', leaf.current_structure_height,
                   leaf.max_height, structure_height)
             if leaf.current_structure_height+leaf.max_height+0.22 > structure_height or (leaf.max_height == 0 and leaf.is_start != 1):
-                # data_logger.info(leaf.current_structure_height+' '+leaf.max_height)
                 print("\nstructure\n")
                 structures.append(leaf)
                 continue
             leaf.print()
             parents = []
             temp_parents = []
-            # x1, x2 = round(x1, 2), round(x2, 2)
             x1, x2 = limit_boundary(
                 leaf.current_structure_height+leaf.max_height)
             print(type(x1), x1, type(x2), x2)
@@ -329,19 +318,12 @@ def generate(structure_height):
                 # blocks in the same position
                 print("parents", len(parents))
                 for parent_node in parents:
-
-                    #   parent_node.print()
                     childlist = generate_child(parent_node, step)
                     empty = True
                     if position != x1 and parent_node.is_head == 1:
                         print("ignore", position, x1, parent_node.is_head)
                         continue
-                    # print("childlist", len(childlist))
                     for child in childlist:
-                        # if parent_node.max_height == 0:
-                        #     child.max_height = round(blocks[child.block][1],2)
-                        # else:
-                        #     child.max_height = round(parent_node.max_height,2)
                         if parent_node.is_head != 1 and parent_node.max_height != 0:
                             child.max_height = round(parent_node.max_height, 2)
                         else:
@@ -356,8 +338,6 @@ def generate(structure_height):
                                 parent_node.current_structure_height, 2)
 
                         child.position = round(position, 2)
-                        # child.point = find_point(
-                        #     position, parent_node, child.current_structure_height)
                         child.point = child.current_structure_height
                         print("--------------------test-----------------\n", child.point,
                               child.block, position, child.current_structure_height)
@@ -394,17 +374,12 @@ def generate(structure_height):
                             temp_leaf.append(child)
                         child.print()
                         temp_parents.append(child)
-                    # child.print()
-
-                        # if position > x2-0.22:
-                        #     temp_leaf.append(child)
 
                 parents.clear()
                 parents = copy.copy(temp_parents)
         print("----------------------------------")
         print('temp_leaf: ', len(temp_leaf))
         if len(temp_leaf) > 15:
-            # if step == 1:
             temp_leaf = prune(temp_leaf, step)
         if len(temp_leaf) == 0:
             signal = False
@@ -427,7 +402,6 @@ def construct(nodes, folder):
         complete_locations = []
         while node.is_start != 1:
             if node.block != str(0):
-                # node.print()
                 complete_locations.append(
                     [int(node.block), round(level_width_min+node.position+round(blocks[node.block][0]/2.0, 3), 3), round(absolute_ground+node.point+round(blocks[node.block][1]/2.0, 3), 3)])
             node = node.parent
@@ -452,27 +426,12 @@ def prune(leaves, step):
     for leaf in leaves:
         column = []
         temp_leaf = copy.copy(leaf)
-        # temp_leaf.print()
         column.insert(0, temp_leaf)
         temp_leaf = temp_leaf.parent
         while temp_leaf.is_head != 1:  # might abort at begining
             column.insert(0, temp_leaf)
-            # if temp_leaf.is_start == 1:
-            #     print("head")
-            # temp_leaf.print()
             temp_leaf = temp_leaf.parent
         columns.append(column)
-        # print(list([x.block, x.position] for x in column))
-    # sort columns according to columns' first node
-    # columns_tree = []
-    # for x in columns:
-    #     if x[0] not in columns_tree:
-    #         columns_tree.append([x[0]])
-    #     else:
-    #         ([y for y in columns_tree if x[0] in y][0]).append(x)
-
-    # for x in range(0, len(columns_tree)):
-    #     cosine_simility(columns_tree[x])
     for x in columns:
         start, end = limit_boundary(
             x[0].current_structure_height)
@@ -483,7 +442,6 @@ def prune(leaves, step):
     eng.calculate_k(nargout=0)
     K = int(eng.workspace['I'])
     closestIdx, Idx, centroid = eng.Structure_prune(K, nargout=3)
-    # parent_nodes=rebuild_node([list(map(lambda x: round(x, 2), i)) for i in prune_result])
     parent_nodes = []
     for i in closestIdx[0]:
         parent_nodes.append(leaves[i-1])
@@ -494,7 +452,6 @@ def prune(leaves, step):
 def cosine_simility(columns):
     start, end = limit_boundary(
         columns[0].current_structure_height)
-    # print(len(columns))
     for index, val in enumerate(columns[1:]):
         columns[1+index] = vectorization(val, start, end)
         unit_vector = np.zeros(len(columns[1+index]))
@@ -506,17 +463,11 @@ def cosine_simility(columns):
 
 def vectorization(column, start, end):
     column_vector = np.zeros((len(np.arange(start, end, gap)), 2))
-    # print(start, end, np.shape(column_vector),
-    #       column_vector, np.arange(start, end, 0.22))
     for block in column:
-        # print(block.position, blocks[block.block][0], blocks[block.block][1])
         if block.block != str(0):
             width = blocks[block.block][0]
             height = blocks[block.block][1]
             position = int((block.position-start)/gap)
-            # print("vectorization", position, width, height, start, end)
-            # print(position)
-            # print(column_vector)
             for x in np.arange(0, width, gap):
                 if x+gap <= width:
                     column_vector[int(position+x/gap)][0] = round(gap, 2)
@@ -525,14 +476,11 @@ def vectorization(column, start, end):
                 column_vector[int(position+x/gap)][1] = round(height, 2)
     column_vector_flatten = column_vector.flatten()
     df = pd.DataFrame([column_vector_flatten])
-    # print("vectorization")
     if os.path.isfile("export.csv"):
         with open("export.csv", 'a') as f:
             df.to_csv(f, header=False)
     else:
         df.to_csv("export.csv")
-
-    # return column_vector_flatten
 
 
 def find_least_f(openlist):
@@ -591,32 +539,15 @@ def check_stability(node, parent):
             continue
         elif nd.block != str(0) and ((round(nd.position+blocks[nd.block][0], 2) > start and round(nd.position+blocks[nd.block][0], 2) < end) or (round(nd.position, 2) > start and round(nd.position, 2) < end) or (round(nd.position, 2) <= start and round(nd.position+blocks[nd.block][0], 2) >= end)):
             shadow_blocks.append(nd)
-            # print((nd.position+blocks[nd.block][0] >
-            #        start and nd.position+blocks[nd.block][0] < end))
-            # print((nd.position > start and nd.position < end))
-            # print((nd.position <= start and nd.position +
-            #        blocks[nd.block][0] >= end))
             print("shadow_blocks", nd.block, nd.position, nd.point)
             if (round(nd.position+blocks[nd.block][0], 2) > start and round(nd.position+blocks[nd.block][0], 2) < end and round(nd.position, 2) <= start) or (round(nd.position, 2) <= start and round(nd.position+blocks[nd.block][0], 2) >= end):
                 break
         nd = nd.parent
 
-    # shadow_blocks.sort(key=lambda x: x.point +
-    #                    blocks[x.block][1], reverse=False)
     shadow_blocks.reverse()
 
-    # max_point = max(shadow_blocks, key=lambda x: x.point+blocks[x.block][1])
-
-    # for block in shadow_blocks:
-    #     if block.point+blocks[block.block][1] == max_point:
-    #         contiguous_blocks.append(block)
-
-    # contiguous_blocks.sort(key=lambda x: x.position, reverse=False)
     contiguous_blocks = shadow_blocks
-    # print("contiguous_blocks", len(contiguous_blocks))
     if len(contiguous_blocks) == 1:
-        # if blocks[contiguous_blocks[0].block][0] >= blocks[node.block][0]:
-        #     return True
         contiguous_block_left_point = round(contiguous_blocks[0].position, 2)
         contiguous_block_right_point = round(
             contiguous_block_left_point+blocks[contiguous_blocks[0].block][0], 2)
@@ -638,7 +569,6 @@ def check_stability(node, parent):
 def find_point(position, node, current_structure_height):
     nd = copy.copy(node)
     while nd.is_start != 1:
-        # nd.print()
         if nd.block == "0":
             nd = nd.parent
             continue
@@ -693,33 +623,13 @@ def find_block(height):
 
 def generate_child(parent_node, step):
     childlist = []
-    # print("2", parent_node.max_height)
     for key, val in blocks.items():
-        # step is odd number, vertical alignment
-        # if step % 2 == 1:
-        #     if val[0] > val[1]:
-        #         continue
-        #     if parent_node.is_head == 0 and parent_node.max_height!=0 and round(val[1],2) != round(parent_node.max_height,2):
-        #         continue
-        # # step is even number, horizontal alignment
-        # else:
-        #     if val[0] < val[1]:
-        #         continue
-        #     if parent_node.is_head == 0 and parent_node.max_height!=0 and round(val[1],2) != round(parent_node.max_height,2):
-        #         continue
-        # # print(val)
         if parent_node.is_head == 0 and parent_node.max_height != 0 and round(val[1], 2) != round(parent_node.max_height, 2):
             continue
         child = Node()
         child.block = str(key)
-        # child.g = 1-check_block_type(child)/13.0+child.current_volume / \
-        # structure_volume
         child.g = 0
         child.f = child.g
-        # child.h = max_width*parent_node.max_height-child.g
-        # if parent_node.max_height == 0:
-        #     child.max_height = blocks[i][0]
-        # child.print()
         childlist.append(child)
     return childlist
 
@@ -1175,14 +1085,12 @@ def limit_boundary(structure_height):
     current_max_width = (
         middle - startpoint)*2
     print(structure_height, current_max_width)
-    # print(current_max_width,m_height)
     return startpoint, round(startpoint+float(current_max_width), 2)
 
 
 def height_limit(position, point):  # limit problems
     position = middle-Abs(middle-position)
     y_limit = py.subs(x, position)
-    # print("y_limit", y_limit)
     if y_limit == 0:
         return min(list(filter(lambda x: x >= point, solve(px-position, y))))
     else:

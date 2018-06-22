@@ -1,7 +1,9 @@
 from copy import copy, deepcopy
+from datetime import datetime
 from pathlib import Path
 from pickle import dump
-from os import makedirs, remove, path
+from os import getpid, makedirs, remove, path, sys
+from re import sub
 from shutil import copyfile
 from time import ctime
 
@@ -164,7 +166,6 @@ def generate(structure_height):
 
 
 def construct(nodes, folder):
-    makedirs(folder, exist_ok=True)
     structures = []
     i = 4
     for node in nodes:
@@ -519,10 +520,22 @@ def height_limit(position, point):  # limit problems
         return min(list(filter(lambda x: x >= point, solve(px-position, y)+[y_limit])))
 
 
+def generate_output_directory():
+    """Generate the output directory and redirect STDOUT and STDERR to a file
+    there. Also save the PID of the process there."""
+    output_directory = f"results/{sub('[^0-9]', '_', str(datetime.now().replace(microsecond=0)))}"
+    makedirs(output_directory)
+    sys.stdout = open(output_directory + '/output.txt', 'a')
+    sys.stderr = open(output_directory + '/output.txt', 'a')
+    with open(output_directory + '/ai_birds.pid', 'a') as f: f.write(str(getpid()))
+    return output_directory
+
+
 if __name__ == '__main__':
+    output_directory = generate_output_directory()
     px, py, m_height, middle = read_limit("limit_parameter.txt")
     print(px)
     print(py)
     print(ctime())
     structures = generate(m_height)
-    construct(structures, sys.argv[1])
+    construct(structures, output_directory)

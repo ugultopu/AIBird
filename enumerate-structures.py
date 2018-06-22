@@ -1,14 +1,13 @@
-from copy import copy, deepcopy
+from copy import copy
 from datetime import datetime
 from pathlib import Path
 from pickle import dump
 from os import getpid, makedirs, remove, path, sys
 from re import sub
-from shutil import copyfile
 from time import ctime
 
 from matlab.engine import start_matlab
-from numpy import arange, dot, linalg, zeros
+from numpy import arange, zeros
 from pandas import DataFrame
 from sympy import Abs, Piecewise, solve, symbols, sympify
 
@@ -216,18 +215,6 @@ def prune(leaves, step):
     return parent_nodes
 
 
-def cosine_simility(columns):
-    start, end = limit_boundary(
-        columns[0].current_structure_height)
-    for index, val in enumerate(columns[1:]):
-        columns[1+index] = vectorization(val, start, end)
-        unit_vector = zeros(len(columns[1+index]))
-        unit_vector[0] = 1
-        # calculate cosine value between vector and unit vector
-        columns[1+index] = dot(columns[1+index],
-                                  unit_vector)/linalg.norm(columns[1+index])
-
-
 def vectorization(column, start, end):
     column_vector = zeros((len(arange(start, end, gap)), 2))
     for block in column:
@@ -250,29 +237,8 @@ def vectorization(column, start, end):
         df.to_csv("export.csv")
 
 
-def find_least_f(openlist):
-    min_num = 0
-    min_f = 0
-    for i, val in enurmerate(openlist):
-        if val.f < min_f:
-            min_num = i
-            min_f = val.f
-    return min_num
-
-
-def check_block_type(node):
-    nd = deepcopy(node)
-    type_list = []
-    while nd is None or nd.block is not str(0):
-        if nd.block not in type_list:
-            type_list.append(nd.block)
-        nd = nd.parent
-    return len(type_list)
-
-
-# check if block overlap with other blocks
-
 def check_overlap(node, parent):
+    """Check if block overlaps with other blocks."""
     nd = copy(parent)
     if nd.is_head == 1:
         return True
@@ -331,61 +297,6 @@ def check_stability(node, parent):
         else:
             return False
     return False
-
-
-def find_point(position, node, current_structure_height):
-    nd = copy(node)
-    while nd.is_start != 1:
-        if nd.block == "0":
-            nd = nd.parent
-            continue
-        if nd.point == current_structure_height:
-            nd = nd.parent
-            continue
-        if nd.position < position and nd.position+blocks[nd.block][0] > position:
-            return round(nd.point+blocks[nd.block][1], 2)
-        nd = nd.parent
-    return 0
-
-
-def find_height(node):
-    current_structure_height = node.current_structure_height
-    nd = deepcopy(node)
-    start = nd.position
-    end = nd.position+blocks[nd.block][0]
-    overlap_blocks = []
-    contiguous_blocks = []
-    nd = nd.parent
-    while nd.is_start == 0:
-        if nd.block == "0":
-            nd = nd.parent
-            continue
-        if nd.point == current_structure_height:
-            nd = nd.parent
-            continue
-        if (nd.position+blocks[nd.block][0] > start and nd.position+blocks[nd.block][0] < end) or (nd.position > start and nd.position < end):
-            overlap_blocks.append(nd)
-        nd = nd.parent
-
-    overlap_blocks.sort(key=lambda x: x.point, reverse=False)
-
-    point = 0
-
-    for block in overlap_blocks:
-        if block.point >= point:
-            contiguous_blocks.append(block)
-        point = block.point
-
-    contiguous_blocks.sort(key=lambda x: x.position, reverse=False)
-    return contiguous_blocks[0].point
-
-
-def find_block(height):
-    candidates = []
-    for index, size in blocks.items():
-        if height == size[1]:
-            candidates.append(blocks.get(index))
-    return candidates
 
 
 def generate_child(parent_node, step):

@@ -1,5 +1,5 @@
 function [y,index,centroids]=Structure_prune(k)
-data=csvread('export_step_1.csv',1,1);
+data=csvread('export.csv',1,1);
 [Idx,Ctrs] = kmeans(data,k,'MaxIter',10000000);
 closestIdx=zeros(1,k,'uint16');
 for iCluster = 1:max(Idx)

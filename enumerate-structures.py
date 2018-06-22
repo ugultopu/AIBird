@@ -200,8 +200,6 @@ def prune(leaves, step):
         start, end = limit_boundary(
             x[0].current_structure_height)
         vectorization(x, round(start, 2), round(end, 2))
-    if step == 1:
-        copyfile('export.csv', 'export_step_1.csv')
     eng = start_matlab()
     eng.calculate_k(nargout=0)
     K = int(eng.workspace['I'])

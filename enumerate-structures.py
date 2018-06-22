@@ -1,15 +1,15 @@
+from copy import copy, deepcopy
+from matlab.engine import start_matlab
+from numpy import arange, dot, linalg, zeros
+from pandas import DataFrame
 from pathlib import Path
+from pickle import dump
+from os import makedirs, remove, path
 from shutil import copyfile
-import pickle
-import matlab.engine
-from sympy import *
-import numpy as np
-import pandas as pd
-import os.path
-import time
-import logging
-import sys
-import os
+from sympy import Abs, Piecewise, solve, symbols, sympify
+from time import ctime
+
+from baseline import blocks
 
 # step
 gap = 0.45
@@ -54,7 +54,7 @@ def generate(structure_height):
     height = 0
     signal = True
     while signal:
-        leaf_node = copy.copy(temp_leaf)
+        leaf_node = copy(temp_leaf)
         temp_leaf.clear()
         print("\n\nstep:", step, "\n\n")
         for leaf in leaf_node:
@@ -72,7 +72,7 @@ def generate(structure_height):
                 leaf.current_structure_height+leaf.max_height)
             print(type(x1), x1, type(x2), x2)
             x1, x2 = round(x1, 2), round(x2, 2)
-            sections = np.arange(x1, x2, gap)
+            sections = arange(x1, x2, gap)
             parents.append(leaf)
             # each position
             for position in sections:
@@ -140,7 +140,7 @@ def generate(structure_height):
                         temp_parents.append(child)
 
                 parents.clear()
-                parents = copy.copy(temp_parents)
+                parents = copy(temp_parents)
         print("----------------------------------")
         print('temp_leaf: ', len(temp_leaf))
         if len(temp_leaf) > 15:
@@ -157,12 +157,12 @@ def generate(structure_height):
 
 
 def construct(nodes, folder):
-    os.makedirs(folder, exist_ok=True)
+    makedirs(folder, exist_ok=True)
     structures = []
     i = 4
     for node in nodes:
         with open(folder+'/node'+str(i), 'wb') as filehandler:
-            pickle.dump(node, filehandler)
+            dump(node, filehandler)
         complete_locations = []
         while node.is_start != 1:
             if node.block != str(0):
@@ -185,11 +185,11 @@ def prune(leaves, step):
     print('\n pruning \n')
     file = Path("export.csv")
     if file.is_file():
-        os.remove("export.csv")
+        remove("export.csv")
     columns = []
     for leaf in leaves:
         column = []
-        temp_leaf = copy.copy(leaf)
+        temp_leaf = copy(leaf)
         column.insert(0, temp_leaf)
         temp_leaf = temp_leaf.parent
         while temp_leaf.is_head != 1:  # might abort at begining
@@ -202,7 +202,7 @@ def prune(leaves, step):
         vectorization(x, round(start, 2), round(end, 2))
     if step == 1:
         copyfile('export.csv', 'export_step_1.csv')
-    eng = matlab.engine.start_matlab()
+    eng = start_matlab()
     eng.calculate_k(nargout=0)
     K = int(eng.workspace['I'])
     closestIdx, Idx, centroid = eng.Structure_prune(K, nargout=3)
@@ -218,29 +218,29 @@ def cosine_simility(columns):
         columns[0].current_structure_height)
     for index, val in enumerate(columns[1:]):
         columns[1+index] = vectorization(val, start, end)
-        unit_vector = np.zeros(len(columns[1+index]))
+        unit_vector = zeros(len(columns[1+index]))
         unit_vector[0] = 1
         # calculate cosine value between vector and unit vector
-        columns[1+index] = np.dot(columns[1+index],
-                                  unit_vector)/np.linalg.norm(columns[1+index])
+        columns[1+index] = dot(columns[1+index],
+                                  unit_vector)/linalg.norm(columns[1+index])
 
 
 def vectorization(column, start, end):
-    column_vector = np.zeros((len(np.arange(start, end, gap)), 2))
+    column_vector = zeros((len(arange(start, end, gap)), 2))
     for block in column:
         if block.block != str(0):
             width = blocks[block.block][0]
             height = blocks[block.block][1]
             position = int((block.position-start)/gap)
-            for x in np.arange(0, width, gap):
+            for x in arange(0, width, gap):
                 if x+gap <= width:
                     column_vector[int(position+x/gap)][0] = round(gap, 2)
                 elif x+gap > width:
                     column_vector[int(position+x/gap)][0] = round(width-x, 2)
                 column_vector[int(position+x/gap)][1] = round(height, 2)
     column_vector_flatten = column_vector.flatten()
-    df = pd.DataFrame([column_vector_flatten])
-    if os.path.isfile("export.csv"):
+    df = DataFrame([column_vector_flatten])
+    if path.isfile("export.csv"):
         with open("export.csv", 'a') as f:
             df.to_csv(f, header=False)
     else:
@@ -258,7 +258,7 @@ def find_least_f(openlist):
 
 
 def check_block_type(node):
-    nd = copy.deepcopy(node)
+    nd = deepcopy(node)
     type_list = []
     while nd is None or nd.block is not str(0):
         if nd.block not in type_list:
@@ -270,7 +270,7 @@ def check_block_type(node):
 # check if block overlap with other blocks
 
 def check_overlap(node, parent):
-    nd = copy.copy(parent)
+    nd = copy(parent)
     if nd.is_head == 1:
         return True
     while nd.is_head != 1:
@@ -284,7 +284,7 @@ def check_overlap(node, parent):
 
 
 def check_stability(node, parent):
-    nd = copy.copy(parent)
+    nd = copy(parent)
     start = round(node.position, 2)
     end = round(node.position+blocks[node.block][0], 2)
     shadow_blocks = []
@@ -331,7 +331,7 @@ def check_stability(node, parent):
 
 
 def find_point(position, node, current_structure_height):
-    nd = copy.copy(node)
+    nd = copy(node)
     while nd.is_start != 1:
         if nd.block == "0":
             nd = nd.parent
@@ -347,7 +347,7 @@ def find_point(position, node, current_structure_height):
 
 def find_height(node):
     current_structure_height = node.current_structure_height
-    nd = copy.deepcopy(node)
+    nd = deepcopy(node)
     start = nd.position
     end = nd.position+blocks[nd.block][0]
     overlap_blocks = []
@@ -516,7 +516,7 @@ def limit_boundary(structure_height):
 
 
 def height_limit(position, point):  # limit problems
-    position = middle-Abs(middle-position)
+    position = middle - Abs(middle-position)
     y_limit = py.subs(x, position)
     if y_limit == 0:
         return min(list(filter(lambda x: x >= point, solve(px-position, y))))
@@ -528,6 +528,6 @@ if __name__ == '__main__':
     px, py, m_height, middle = read_limit("limit_parameter2.txt")
     print(px)
     print(py)
-    print(time.ctime())
+    print(ctime())
     structures = generate(m_height)
     construct(structures, sys.argv[1])

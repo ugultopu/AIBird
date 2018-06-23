@@ -1,10 +1,9 @@
 from copy import copy
-from datetime import datetime
 from pathlib import Path
 from pickle import dump
-from os import getpid, makedirs, remove, path, sys
+from os import makedirs, remove, path
 from random import randint
-from re import sub
+from sys import argv
 from time import ctime
 
 from matlab.engine import start_matlab
@@ -433,19 +432,8 @@ def height_limit(position, point):  # limit problems
         return min(list(filter(lambda x: x >= point, solve(px-position, y)+[y_limit])))
 
 
-def generate_output_directory():
-    """Generate the output directory and redirect STDOUT and STDERR to a file
-    there. Also save the PID of the process there."""
-    output_directory = f"results/{sub('[^0-9]', '_', str(datetime.now().replace(microsecond=0)))}"
-    makedirs(output_directory)
-    sys.stdout = open(output_directory + '/output.txt', 'a')
-    sys.stderr = open(output_directory + '/output.txt', 'a')
-    with open(output_directory + '/ai_birds.pid', 'a') as f: f.write(str(getpid()))
-    return output_directory
-
-
 if __name__ == '__main__':
-    output_directory = generate_output_directory()
+    output_directory = argv[1]
     px, py, m_height, middle = read_limit("limit_parameter.txt")
     print(px)
     print(py)

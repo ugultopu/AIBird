@@ -206,6 +206,7 @@ def prune(leaves, step):
             x[0].current_structure_height)
         vectorization(x, round(start, 2), round(end, 2))
     eng = start_matlab()
+    eng.addpath('src/matlab', nargout=0)
     eng.calculate_k(nargout=0)
     K = int(eng.workspace['I'])
     closestIdx, Idx, centroid = eng.Structure_prune(K, nargout=3)
@@ -434,7 +435,7 @@ def height_limit(position, point):  # limit problems
 
 if __name__ == '__main__':
     output_directory = argv[1]
-    px, py, m_height, middle = read_limit("limit_parameter.txt")
+    px, py, m_height, middle = read_limit('parameters/limit_parameter.txt')
     print(px)
     print(py)
     print(ctime())

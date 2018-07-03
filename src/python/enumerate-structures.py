@@ -435,7 +435,7 @@ def height_limit(position, point):  # limit problems
 
 if __name__ == '__main__':
     output_directory = argv[1]
-    px, py, m_height, middle = read_limit('parameters/limit_parameter.txt')
+    px, py, m_height, middle = read_limit(argv[2])
     print(px)
     print(py)
     print(ctime())

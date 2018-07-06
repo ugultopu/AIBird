@@ -207,7 +207,8 @@ def prune(leaves, step):
         vectorization(x, round(start, 2), round(end, 2))
     eng = start_matlab()
     eng.addpath('src/matlab', nargout=0)
-    K = 3
+    eng.calculate_k(nargout=0)
+    K = int(eng.workspace['I'])
     closestIdx, Idx, centroid = eng.Structure_prune(K, nargout=3)
     parent_nodes = []
     for i in closestIdx[0]:

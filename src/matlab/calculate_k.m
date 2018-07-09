@@ -1,6 +1,7 @@
 data=csvread('export.csv',1,1);
-k_means_result=zeros(1,100);
-for i = 1: 100
+max_k=100;
+k_means_result=zeros(1,max_k);
+for i = 1: max_k
     [l,w]=size(data);
     if l<i
         break

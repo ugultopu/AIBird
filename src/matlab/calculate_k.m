@@ -1,5 +1,5 @@
 data=csvread('export.csv',1,1);
-max_k=100;
+max_k=5;
 k_means_result=zeros(1,max_k);
 for i = 1: max_k
     [l,w]=size(data);

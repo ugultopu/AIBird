@@ -1,5 +1,5 @@
 function [y,index,centroids]=Structure_prune(k)
-data=csvread(FILE_NAME,1,1);
+data=csvread(evalin('base', 'FILE_NAME'),1,1);
 [Idx,Ctrs] = kmeans(data,k,'MaxIter',1000);
 closestIdx=zeros(1,k,'uint16');
 for iCluster = 1:max(Idx)

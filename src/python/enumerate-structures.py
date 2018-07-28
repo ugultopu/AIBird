@@ -28,6 +28,7 @@ number_pigs = 4
 x = symbols("x")
 y = symbols("y")
 
+FILE_NAME = f'export_{argv[1].split("/")[-1]}.csv'
 
 class Node(object):
     def __init__(self, arg=None):
@@ -188,9 +189,9 @@ def construct(nodes, folder):
 
 def prune(leaves, step):
     print('\n pruning \n')
-    file = Path("export.csv")
+    file = Path(FILE_NAME)
     if file.is_file():
-        remove("export.csv")
+        remove(FILE_NAME)
     columns = []
     for leaf in leaves:
         column = []
@@ -206,6 +207,7 @@ def prune(leaves, step):
             x[0].current_structure_height)
         vectorization(x, round(start, 2), round(end, 2))
     eng = start_matlab()
+    eng.workspace['FILE_NAME'] = FILE_NAME
     eng.addpath('AIBird/src/matlab', nargout=0)
     eng.calculate_k(nargout=0)
     K = int(eng.workspace['I'])
@@ -232,11 +234,11 @@ def vectorization(column, start, end):
                 column_vector[int(position+x/gap)][1] = round(height, 2)
     column_vector_flatten = column_vector.flatten()
     df = DataFrame([column_vector_flatten])
-    if path.isfile("export.csv"):
-        with open("export.csv", 'a') as f:
+    if path.isfile(FILE_NAME):
+        with open(FILE_NAME, 'a') as f:
             df.to_csv(f, header=False)
     else:
-        df.to_csv("export.csv")
+        df.to_csv(FILE_NAME)
 
 
 def check_overlap(node, parent):

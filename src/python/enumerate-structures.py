@@ -21,6 +21,8 @@ from baseline import ( absolute_ground,
                        remove_unnecessary_pigs,
                        write_level_xml )
 
+from structure_prune import structure_prune
+
 # step
 gap = 0.45
 
@@ -205,11 +207,9 @@ def prune(leaves, step):
             temp_leaf = temp_leaf.parent
         columns.append(column)
     for x in columns:
-        start, end = limit_boundary(
-            x[0].current_structure_height)
+        start, end = limit_boundary(x[0].current_structure_height)
         vectorization(x, round(start, 2), round(end, 2))
-    # FIXME Call 'structure_prune.py' instead of MATLAB code.
-    closestIdx, Idx, centroid = eng.Structure_prune(5, nargout=3)
+    closestIdx, Idx, centroid = structure_prune(5, export_data)
     parent_nodes = []
     for i in closestIdx[0]:
         parent_nodes.append(leaves[i-1])

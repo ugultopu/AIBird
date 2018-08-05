@@ -1,10 +1,8 @@
-from csv import reader
+from sklearn.cluster import KMeans
+from sklearn.metrics import pairwise_distances_argmin_min
 
-def structure_prune(k):
-    with open('export_2018_08_01-14_28_49.csv') as f:
-        export_file_reader = reader(f)
-        next(export_file_reader)
-        for row in export_file_reader:
-            print(row[1:])
-
-structure_prune(0)
+def structure_prune(k, export_data):
+    kmeans = KMeans(n_clusters=k).fit(export_data)
+    return ( pairwise_distances_argmin_min(kmeans.cluster_centers_, export_data),
+             kmeans.labels_,
+             kmeans.cluster_centers_ )

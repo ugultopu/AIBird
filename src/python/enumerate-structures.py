@@ -1,3 +1,5 @@
+import numpy as np
+
 from copy import copy
 from pathlib import Path
 from pickle import dump
@@ -7,7 +9,6 @@ from sys import argv
 from time import ctime
 
 from matlab.engine import start_matlab
-from numpy import arange, zeros
 from pandas import DataFrame
 from sympy import Abs, Piecewise, solve, symbols, sympify
 
@@ -29,6 +30,8 @@ x = symbols("x")
 y = symbols("y")
 
 FILE_NAME = f'export_{argv[1].split("/")[-1]}.csv'
+export_data = np.array()
+max_column_vector_length = 0
 
 class Node(object):
     def __init__(self, arg=None):
@@ -82,7 +85,7 @@ def generate(structure_height):
                 leaf.current_structure_height+leaf.max_height)
             print(type(x1), x1, type(x2), x2)
             x1, x2 = round(x1, 2), round(x2, 2)
-            sections = arange(x1, x2, gap)
+            sections = np.arange(x1, x2, gap)
             parents.append(leaf)
             # each position
             for position in sections:
@@ -220,25 +223,19 @@ def prune(leaves, step):
 
 
 def vectorization(column, start, end):
-    column_vector = zeros((len(arange(start, end, gap)), 2))
+    column_vector = np.zeros((len(np.arange(start, end, gap)), 2))
     for block in column:
         if block.block != str(0):
             width = blocks[block.block][0]
             height = blocks[block.block][1]
             position = int((block.position-start)/gap)
-            for x in arange(0, width, gap):
+            for x in np.arange(0, width, gap):
                 if x+gap <= width:
                     column_vector[int(position+x/gap)][0] = round(gap, 2)
                 elif x+gap > width:
                     column_vector[int(position+x/gap)][0] = round(width-x, 2)
                 column_vector[int(position+x/gap)][1] = round(height, 2)
-    column_vector_flatten = column_vector.flatten()
-    df = DataFrame([column_vector_flatten])
-    if path.isfile(FILE_NAME):
-        with open(FILE_NAME, 'a') as f:
-            df.to_csv(f, header=False)
-    else:
-        df.to_csv(FILE_NAME)
+    column_vectors.append(column_vector.flatten())
 
 
 def check_overlap(node, parent):

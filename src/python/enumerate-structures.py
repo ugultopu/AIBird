@@ -1,16 +1,16 @@
 import numpy as np
 
 from copy import copy
-from pathlib import Path
 from pickle import dump
-from os import makedirs, remove, path
 from random import randint
 from sys import argv
 from time import ctime
 
-from matlab.engine import start_matlab
-from pandas import DataFrame
-from sympy import Abs, Piecewise, solve, symbols, sympify
+from sympy import ( Abs,
+                    Piecewise,
+                    solve,
+                    symbols,
+                    sympify )
 
 from baseline import ( absolute_ground,
                        add_TNT,
@@ -29,7 +29,6 @@ number_pigs = 4
 x = symbols("x")
 y = symbols("y")
 
-FILE_NAME = f'export_{argv[1].split("/")[-1]}.csv'
 export_data = np.array()
 max_column_vector_length = 0
 
@@ -192,9 +191,9 @@ def construct(nodes, folder):
 
 def prune(leaves, step):
     print('\n pruning \n')
-    file = Path(FILE_NAME)
-    if file.is_file():
-        remove(FILE_NAME)
+    # Reset the export data
+    export_data = np.array()
+    max_column_vector_length = 0
     columns = []
     for leaf in leaves:
         column = []
@@ -209,16 +208,11 @@ def prune(leaves, step):
         start, end = limit_boundary(
             x[0].current_structure_height)
         vectorization(x, round(start, 2), round(end, 2))
-    eng = start_matlab()
-    eng.workspace['FILE_NAME'] = FILE_NAME
-    eng.addpath('AIBird/src/matlab', nargout=0)
-    eng.calculate_k(nargout=0)
-    K = int(eng.workspace['I'])
-    closestIdx, Idx, centroid = eng.Structure_prune(K, nargout=3)
+    # FIXME Call 'structure_prune.py' instead of MATLAB code.
+    closestIdx, Idx, centroid = eng.Structure_prune(5, nargout=3)
     parent_nodes = []
     for i in closestIdx[0]:
         parent_nodes.append(leaves[i-1])
-    eng.quit()
     return parent_nodes
 
 

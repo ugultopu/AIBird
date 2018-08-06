@@ -1,3 +1,4 @@
+import logging as log
 import numpy as np
 
 from copy import copy
@@ -32,7 +33,8 @@ x = symbols("x")
 y = symbols("y")
 
 def reset_export_data():
-    global export_data = np.empty(0), max_column_vector_length = 0
+    global export_data
+    export_data = []
 
 reset_export_data()
 
@@ -217,7 +219,8 @@ def prune(leaves, step):
 
 
 def vectorization(column, start, end):
-    global export_data, max_column_vector_length
+    global export_data
+    log.info(f'column is: {column}')
     column_vector = np.zeros((len(np.arange(start, end, gap)), 2))
     for block in column:
         if block.block != str(0):

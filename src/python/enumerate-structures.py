@@ -31,13 +31,8 @@ number_pigs = 4
 x = symbols("x")
 y = symbols("y")
 
-export_data = np.empty(0)
-max_column_vector_length = 0
-
 def reset_export_data():
-    global export_data, max_column_vector_length
-    export_data = np.empty(0)
-    max_column_vector_length = 0
+    global export_data = np.empty(0), max_column_vector_length = 0
 
 reset_export_data()
 

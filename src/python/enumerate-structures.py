@@ -31,8 +31,14 @@ number_pigs = 4
 x = symbols("x")
 y = symbols("y")
 
-export_data = np.array()
+export_data = np.empty(0)
 max_column_vector_length = 0
+
+def reset_export_data():
+    export_data = np.empty(0)
+    max_column_vector_length = 0
+
+reset_export_data()
 
 class Node(object):
     def __init__(self, arg=None):
@@ -193,9 +199,7 @@ def construct(nodes, folder):
 
 def prune(leaves, step):
     print('\n pruning \n')
-    # Reset the export data
-    export_data = np.array()
-    max_column_vector_length = 0
+    reset_export_data()
     columns = []
     for leaf in leaves:
         column = []

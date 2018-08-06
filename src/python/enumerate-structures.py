@@ -211,6 +211,7 @@ def prune(leaves, step):
     for x in columns:
         start, end = limit_boundary(x[0].current_structure_height)
         vectorization(x, round(start, 2), round(end, 2))
+    log.info(f'columns before "structure_prune" are: {columns}')
     closestIdx, Idx, centroid = structure_prune(5, export_data)
     parent_nodes = []
     for i in closestIdx[0]:

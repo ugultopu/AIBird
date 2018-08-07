@@ -208,7 +208,6 @@ def prune(leaves, step):
     for column in columns:
         start, end = limit_boundary(column[0].current_structure_height)
         vectorization(column, round(start, 2), round(end, 2), column_vectors)
-    log.info(f'columns are: {pformat(columns)}')
     closestIdx, Idx, centroid = structure_prune(5, column_vectors)
     parent_nodes = []
     for i in closestIdx[0]:
@@ -217,7 +216,6 @@ def prune(leaves, step):
 
 
 def vectorization(column, start, end, column_vectors):
-    log.info(f'column is: {pformat(column)}')
     column_vector = np.zeros((len(np.arange(start, end, gap)), 2))
     for block in column:
         if block.block != str(0):

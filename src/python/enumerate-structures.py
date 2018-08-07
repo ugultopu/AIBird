@@ -24,6 +24,8 @@ from baseline import ( absolute_ground,
 
 from structure_prune import structure_prune
 
+log.basicConfig(format='%(asctime)s %(levelname)-8s [%(pathname)s:%(lineno)d] %(message)s', level=log.INFO)
+
 # step
 gap = 0.45
 

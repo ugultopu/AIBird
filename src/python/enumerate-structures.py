@@ -55,7 +55,7 @@ class Node(object):
         self.is_start = 0  # test if the node is the structure's head
         self.is_head = 0  # test if the node is the row's head
 
-    def __str__(self):
+    def __repr__(self):
         return ' '.join([str(item) for item in self.__dict__.items()])
 
 

@@ -3,6 +3,7 @@ import numpy as np
 
 from copy import copy
 from pickle import dump
+from pprint import pformat
 from random import randint
 from sys import argv
 from time import ctime
@@ -24,7 +25,7 @@ from baseline import ( absolute_ground,
 
 from structure_prune import structure_prune
 
-log.basicConfig(format='%(asctime)s %(levelname)-8s [%(pathname)s:%(lineno)d] %(message)s', level=log.INFO)
+log.basicConfig(format='%(asctime)s %(levelname)s [%(pathname)s:%(lineno)d] %(message)s', level=log.INFO)
 
 # step
 gap = 0.45
@@ -213,7 +214,7 @@ def prune(leaves, step):
     for x in columns:
         start, end = limit_boundary(x[0].current_structure_height)
         vectorization(x, round(start, 2), round(end, 2))
-    log.info(f'columns before "structure_prune" are: {columns}')
+    log.info(f'columns are: {pformat(columns)}')
     closestIdx, Idx, centroid = structure_prune(5, export_data)
     parent_nodes = []
     for i in closestIdx[0]:
@@ -223,7 +224,7 @@ def prune(leaves, step):
 
 def vectorization(column, start, end):
     global export_data
-    log.info(f'column is: {column}')
+    log.info(f'column is: {pformat(column)}')
     column_vector = np.zeros((len(np.arange(start, end, gap)), 2))
     for block in column:
         if block.block != str(0):

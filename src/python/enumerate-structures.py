@@ -35,12 +35,6 @@ number_pigs = 4
 x = symbols("x")
 y = symbols("y")
 
-def reset_export_data():
-    global export_data
-    export_data = []
-
-reset_export_data()
-
 class Node(object):
     def __init__(self, arg=None):
         super(Node, self).__init__()
@@ -200,7 +194,7 @@ def construct(nodes, folder):
 
 def prune(leaves, step):
     print('\n pruning \n')
-    reset_export_data()
+    column_vectors = []
     columns = []
     for leaf in leaves:
         column = []
@@ -211,19 +205,18 @@ def prune(leaves, step):
             column.insert(0, temp_leaf)
             temp_leaf = temp_leaf.parent
         columns.append(column)
-    for x in columns:
-        start, end = limit_boundary(x[0].current_structure_height)
-        vectorization(x, round(start, 2), round(end, 2))
+    for column in columns:
+        start, end = limit_boundary(column[0].current_structure_height)
+        vectorization(column, round(start, 2), round(end, 2), column_vectors)
     log.info(f'columns are: {pformat(columns)}')
-    closestIdx, Idx, centroid = structure_prune(5, export_data)
+    closestIdx, Idx, centroid = structure_prune(5, column_vectors)
     parent_nodes = []
     for i in closestIdx[0]:
         parent_nodes.append(leaves[i-1])
     return parent_nodes
 
 
-def vectorization(column, start, end):
-    global export_data
+def vectorization(column, start, end, column_vectors):
     log.info(f'column is: {pformat(column)}')
     column_vector = np.zeros((len(np.arange(start, end, gap)), 2))
     for block in column:

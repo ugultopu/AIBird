@@ -1,0 +1,2 @@
+- Select what to print in '__repr__' of 'Node' class. Reduce the number of
+things to print in it.

@@ -1,9 +1,14 @@
+import logging as log
+
 from numpy import array
+from pprint import pformat
 from sklearn.cluster import KMeans
 from sklearn.metrics import pairwise_distances_argmin_min
 
-def structure_prune(k, export_data):
-    kmeans = KMeans(n_clusters=k).fit(array(export_data))
-    return ( pairwise_distances_argmin_min(kmeans.cluster_centers_, export_data),
+def structure_prune(k, column_vectors):
+    vectors_as_numpy_array = array(column_vectors)
+    log.info(f'column vectors as numpy array are: {pformat(vectors_as_numpy_array)}')
+    kmeans = KMeans(n_clusters=k).fit(vectors_as_numpy_array)
+    return ( pairwise_distances_argmin_min(kmeans.cluster_centers_, vectors_as_numpy_array),
              kmeans.labels_,
              kmeans.cluster_centers_ )

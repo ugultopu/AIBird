@@ -1,3 +1,4 @@
+import cProfile
 import logging as log
 import numpy as np
 
@@ -425,7 +426,8 @@ def height_limit(position, point):  # limit problems
         return min(list(filter(lambda x: x >= point, solve(px-position, y)+[y_limit])))
 
 
-if __name__ == '__main__':
+def main(argv):
+    global px, py, m_height, middle
     output_directory = argv[1]
     px, py, m_height, middle = read_limit(argv[2])
     print(px)
@@ -433,3 +435,7 @@ if __name__ == '__main__':
     print(ctime())
     structures = generate(m_height)
     construct(structures, output_directory)
+
+if __name__ == '__main__':
+    if argv[2].split('/')[-1] == 'limit_parameter2.txt': cProfile.run(f'main({argv})')
+    else: main(argv)

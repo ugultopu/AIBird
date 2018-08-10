@@ -437,5 +437,5 @@ def main(argv):
     construct(structures, output_directory)
 
 if __name__ == '__main__':
-    if argv[2].split('/')[-1] == 'limit_parameter2.txt': cProfile.run(f'main({argv})')
+    if argv[2].split('/')[-1] == 'limit_parameter2.txt': cProfile.run(f'main({argv})', filename=argv[1]+'/profiler-results')
     else: main(argv)

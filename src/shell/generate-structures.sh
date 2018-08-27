@@ -10,8 +10,8 @@ mkdir -p "AIBird/$directory"
 # Run PonyGE2 script
 cd PonyGE2/src
 python3 ponyge.py --parameters ai_birds.txt --file_path "$directory" &> "../$directory/output.txt"
-# Run the script with 'nohup' in the background. Pass the generated directory's
-# path to the script. Also pass 'positions.txt' from the last run of PonyGE2
+# Pass the generated directory's path to the script. Also pass 'positions.txt'
+# from the last run of PonyGE2
 cd ../..
 python3 AIBird/src/python/enumerate-structures.py "AIBird/$directory" "PonyGE2/$directory/positions.txt" &> "AIBird/$directory/output.txt" &
 # Save the PID number of the script to a file
